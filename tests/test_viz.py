@@ -5,11 +5,12 @@ Verifica que las funciones de graficado generen los archivos físicos
 esperados (PNG y HTML) en las rutas configuradas.
 """
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pytest
-from src.weather.viz import generate_all_visualizations
+
 from src.weather.config import Config
+from src.weather.viz import generate_all_visualizations
 
 
 class MockConfig(Config):
@@ -41,7 +42,7 @@ def dummy_data():
     # Necesitamos al menos un par de estaciones para que los gráficos de comparación funcionen
     stations = ["TEST1", "TEST2"]
     dates = pd.date_range("2020-01-01", periods=48, freq="h")
-    
+
     dfs = []
     for s in stations:
         dfs.append(pd.DataFrame({
@@ -56,9 +57,9 @@ def dummy_data():
             "month": [d.month for d in dates],
             "hour": [d.hour for d in dates]
         }))
-    
+
     df = pd.concat(dfs)
-    
+
     # Resultados de tendencias
     results_list = []
     for s in stations:
@@ -78,7 +79,7 @@ def dummy_data():
             "distancia_costa": 5.0
         })
     results_df = pd.DataFrame(results_list)
-    
+
     # Resultados de aceleración
     acc_list = []
     for s in stations:
@@ -91,21 +92,21 @@ def dummy_data():
                 "tavg_slope": 0.1
             })
     acc_df = pd.DataFrame(acc_list)
-    
+
     return df, results_df, acc_df
 
 
 def test_generate_all_visualizations_creates_files(dummy_data, mock_config):
     """Test de integración: verifica que se creen todos los archivos de salida."""
     df, results_df, acc_df = dummy_data
-    
+
     # Ejecutar generador
     generate_all_visualizations(df, results_df, acc_df, mock_config)
-    
+
     # Verificar existencia de archivos clave
     assert (mock_config.MAPS_DIR / "trend_map.html").exists()
     assert (mock_config.FIGURES_DIR / "altitude_vs_trend.png").exists()
     assert (mock_config.FIGURES_DIR / "acceleration_comparison.png").exists()
     assert (mock_config.FIGURES_DIR / "completeness_heatmap.png").exists()
     assert (mock_config.FIGURES_DIR / "coastal_vs_inland.png").exists()
- 
+

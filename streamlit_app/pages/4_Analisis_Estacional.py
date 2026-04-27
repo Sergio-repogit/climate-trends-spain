@@ -73,7 +73,7 @@ def calculate_seasonal_analysis():
 def app():
     st.title("Análisis Estacional Comparativo")
     st.markdown("""
-    Esta página permite comparar cómo afecta el calentamiento a cada estación del año y situar 
+    Esta página permite comparar cómo afecta el calentamiento a cada estación del año y situar
     una ciudad específica frente a la distribución nacional.
     """)
 

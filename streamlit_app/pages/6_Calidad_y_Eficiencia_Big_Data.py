@@ -69,7 +69,7 @@ def app():
         1. **Filtros Físicos:** Limpieza de imposibles termodinámicos.
         2. **Detección Estadística:** Z-Score + IQR Estacionalizado para anomalías.
         3. **Consistencia Temporal:** Eliminación de bloques constantes y variaciones irreales.
-        
+
         **Homogeneización:**
         - Test de Pettitt para detección de 'changepoints' estructurales.
         - Interpolación condicionada mediante Splines.

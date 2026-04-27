@@ -74,7 +74,7 @@ def test_detect_outliers_seasonalized_zscore():
     outliers = detect_outliers_seasonalized_zscore(df, "temp", threshold=1.5)
 
     # El último valor debería ser outlier
-    assert outliers.iloc[-1] == True
+    assert outliers.iloc[-1]
     assert outliers.iloc[0:5].sum() == 0
 
 
@@ -89,7 +89,7 @@ def test_detect_outliers_seasonalized_iqr():
     outliers = detect_outliers_seasonalized_iqr(df, "temp", multiplier=3.0)
 
     # El último valor debería ser outlier
-    assert outliers.iloc[-1] == True
+    assert outliers.iloc[-1]
 
 
 def test_detect_temporal_inconsistencies(config):
