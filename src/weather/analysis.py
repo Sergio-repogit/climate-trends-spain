@@ -469,6 +469,9 @@ def analyze_trends_comprehensive(df: pd.DataFrame, config: Config) -> pd.DataFra
 
     results_df = pd.DataFrame(results_list)
 
+    # Asegurar que el directorio existe antes de guardar
+    config.RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+
     # Guardar resultados
     results_path = config.RESULTS_DIR / "comprehensive_trends.parquet"
     results_df.to_parquet(results_path, index=False)
@@ -539,6 +542,9 @@ def analyze_trends_acceleration(df: pd.DataFrame, config: Config) -> pd.DataFram
             results_acc.append(res_row)
 
     results_df = pd.DataFrame(results_acc)
+
+    # Asegurar que el directorio existe antes de guardar
+    config.RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
     # Guardar resultados
     acc_path = config.RESULTS_DIR / "acceleration_trends.parquet"
