@@ -30,8 +30,7 @@ theme:
 
 nav:
   - Inicio: index.md
-  - Metodología: metodologia.md
-  - Resultados: resultados.md
+  - Análisis Estacional: analisis.md
 
 markdown_extensions:
   - pymdownx.highlight:
