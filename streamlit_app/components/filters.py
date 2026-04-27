@@ -28,7 +28,6 @@ def render_sidebar_filters(df):
 
     st.sidebar.markdown("---")
     with st.sidebar.expander(" Información"):
-        st.write("**Versión:** 2.0.0")
         st.write("**Datos:** Meteostat (51 Provincias)")
         st.write("**Periodo:** 2010-2025")
 

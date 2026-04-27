@@ -19,7 +19,7 @@ def load_comprehensive_trends():
             return pd.read_parquet(file_path)
         else:
             st.warning(
-                "Datos reales no encontrados. Mostrando datos simulados para visualización UI."
+                r"Datos reales no encontrados. Mostrando datos simulados para visualización UI. Algunas funciones necesitan los datos reales por lo que no se ejecutará o dará error, se recomienda ejecutar en local después de haber ejecutado el archivo \src\weather\main.py"
             )
             return _generate_dummy_trends()
     except Exception as e:

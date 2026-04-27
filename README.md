@@ -9,7 +9,7 @@
 [![CI](https://github.com/Sergio-repogit/climate-trends-spain/actions/workflows/ci.yml/badge.svg)](https://github.com/Sergio-repogit/climate-trends-spain/actions/workflows/ci.yml)
 [![Docs](https://github.com/Sergio-repogit/climate-trends-spain/actions/workflows/docs.yml/badge.svg)](https://sergio-repogit.github.io/climate-trends-spain/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://climate-trends-spain.streamlit.app)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://climate-trends-spain-hiabw9feurjc6crj2l2kh4.streamlit.app)
 
 ---
 
