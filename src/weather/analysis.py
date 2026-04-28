@@ -124,7 +124,7 @@ def calculate_derived_variables(df: pd.DataFrame, config: Config) -> pd.DataFram
             df_derived["temp"] < config.COLD_EXTREME_THRESHOLD
         ).astype(int)
 
-    print("  [OK] Variables derivadas calculadas")
+    print(" Variables derivadas calculadas")
     print("    - season, is_night, anomalia_termica, heat_index")
     print("    - Extremos: noches tropicales, calor extremo, frío extremo")
 
@@ -243,7 +243,7 @@ def mann_kendall_with_confidence(
         slope = result.slope
         slope_per_decade = slope * 10 if slope is not None else np.nan
 
-        # Obtener tau de forma segura (la API puede haber cambiado)
+        # Obtener tau
         tau_value = getattr(result, "tau", np.nan)  # Default a NaN si no existe
 
         # Intervalo de confianza bootstrap
@@ -272,7 +272,7 @@ def mann_kendall_with_confidence(
             "trend": result.trend,
             "p_value": result.p,
             "z_score": result.z,
-            "tau": tau_value,  # Usar valor obtenido de forma segura
+            "tau": tau_value,
             "sens_slope": slope,
             "sens_slope_per_decade": slope_per_decade,
             "slope_lower_ci": lower_ci,
@@ -479,8 +479,8 @@ def analyze_trends_comprehensive(df: pd.DataFrame, config: Config) -> pd.DataFra
     results_json = config.RESULTS_DIR / "comprehensive_trends.json"
     results_df.to_json(results_json, orient="records", indent=2)
 
-    print(f"\n[OK] Análisis completado para {len(results_df)} estaciones")
-    print(f"[OK] Resultados guardados en: {results_path}")
+    print(f"\n Análisis completado para {len(results_df)} estaciones")
+    print(f"Resultados guardados en: {results_path}")
 
     return results_df
 
@@ -553,6 +553,6 @@ def analyze_trends_acceleration(df: pd.DataFrame, config: Config) -> pd.DataFram
     acc_json = config.RESULTS_DIR / "acceleration_trends.json"
     results_df.to_json(acc_json, orient="records", indent=2)
 
-    print(f"\n[OK] Análisis de aceleración guardado en: {acc_path}")
+    print(f"\n Análisis de aceleración guardado en: {acc_path}")
 
     return results_df

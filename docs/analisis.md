@@ -112,7 +112,7 @@ Donde el cambio climático muestra su cara más agresiva es en los indicadores d
 ### C. Factor Estacional: La Asimetría del Calentamiento
 El calentamiento en España no es uniforme a lo largo del año. Al analizar los datos por estaciones climáticas, observamos:
 
-1.  **Verano (Récord):** Registra la pendiente más alta (**$+0.85 ^\circ C/década$**), impulsada por olas de calor más frecuentes y duraderas.
+1.  **Verano:** Registra la pendiente más alta (**$+0.85 ^\circ C/década$**), impulsada por olas de calor más frecuentes y duraderas.
 2.  **Primavera:** Segunda estación con mayor calentamiento, lo que provoca un adelantamiento del ciclo vegetativo.
 3.  **Invierno y Otoño:** Muestran tendencias más moderadas (**$+0.35 ^\circ C/década$**), pero con una variabilidad mucho mayor (p-valores > 0.05 en la mayoría de casos).
 

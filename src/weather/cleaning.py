@@ -80,7 +80,7 @@ def detect_outliers_seasonalized_zscore(
     Args:
         group_df: DataFrame agrupado por mes y hora
         col: Columna a analizar
-        threshold: Umbral de z-score (típicamente 4.0)
+        threshold: Umbral de z-score (4.0)
 
     Returns:
         Serie booleana indicando outliers
@@ -250,10 +250,6 @@ def interpolate_gaps_conditioned(
         2. Estimar patrón horario histórico
         3. Combinar: valor_fill = patrón_horario + anomalía_tendencia
 
-    Justificación: Gaps largos no se pueden rellenar con spline (extrapolación),
-    pero sí usar conocimiento del ciclo diario característico de ese mes/hora
-    más la tendencia de ese año/mes específico.
-
     Args:
         df: DataFrame con datos de UNA estación
         col: Columna a interpolar
@@ -317,10 +313,6 @@ def pettitt_test(series: pd.Series) -> tuple[int, float]:
         Tupla (índice_cambio, p_value)
             - índice_cambio: Posición del cambio detectado (o -1 si no hay)
             - p_value: Significancia estadística
-
-    References:
-        Pettitt, A.N. (1979). "A Non-Parametric Approach to the Change-Point Problem".
-        Applied Statistics, 28(2): 126-135.
     """
     n = len(series)
     if n < 3:

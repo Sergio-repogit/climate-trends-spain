@@ -87,7 +87,6 @@ def app():
         st.error("Error al cargar datos estacionales.")
         st.stop()
 
-    # --- FILTROS ESTÁNDAR (Como en el resto de la app) ---
     from components.filters import render_sidebar_filters
 
     df_filtered_meta, temp_var_code = render_sidebar_filters(df_meta)
@@ -114,7 +113,7 @@ def app():
     )
     df_box = df_box.sort_values("season")
 
-    # --- VISUALIZACIÓN 1: BOXPLOT NACIONAL ---
+    # VISUALIZACIÓN 1: BOXPLOT NACIONAL
     st.subheader(f"Distribución Nacional de Tendencias: Temperatura {selected_var}")
     if selected_stations:
         st.markdown(
@@ -168,7 +167,7 @@ def app():
 
     st.markdown("---")
 
-    # --- VISUALIZACIÓN 2: MAPA ESPACIAL ---
+    # VISUALIZACIÓN 2: MAPA ESPACIAL
     # Para el mapa, mostramos el promedio anual de esa variable para dar contexto geográfico
     st.subheader(f"Mapa General de Tendencias: Temperatura {selected_var}")
 

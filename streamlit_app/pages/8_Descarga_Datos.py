@@ -55,18 +55,6 @@ def app():
             "**Nota:** Para rendimiento Big Data en producción, se sugiere conectar directamente al archivo Parquet generado por el pipeline."
         )
 
-    st.markdown("---")
-    st.subheader("Código para reproducir resultados (Python)")
-    st.code(
-        """
-import pandas as pd
-df = pd.read_parquet('data/results/comprehensive_trends.parquet')
-top_calentamiento = df.sort_values(by='tavg_slope', ascending=False).head(5)
-print(top_calentamiento[['region', 'tavg_slope']])
-    """,
-        language="python",
-    )
-
 
 if __name__ == "__main__":
     app()

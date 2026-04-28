@@ -34,10 +34,6 @@ def optimize_df(df: pd.DataFrame) -> pd.DataFrame:
 
     Returns:
         DataFrame con tipos optimizados
-
-    Examples:
-        >>> df_opt = optimize_df(df_raw)
-        >>> print(f"Reducción memoria: {df_raw.memory_usage().sum() / df_opt.memory_usage().sum():.2f}x")
     """
     df_opt = df.copy()
 
@@ -53,7 +49,7 @@ def optimize_df(df: pd.DataFrame) -> pd.DataFrame:
             col_max = df_opt[col].max()
             has_nans = df_opt[col].isnull().any()
 
-            # Enteros (solo si no tienen NaNs para usar tipos numpy estándar)
+            # Enteros (solo si no tienen NaNs)
             if pd.api.types.is_integer_dtype(col_type) and not has_nans:
                 # Unsigned int (solo positivos)
                 if col_min >= 0:
@@ -74,8 +70,8 @@ def optimize_df(df: pd.DataFrame) -> pd.DataFrame:
 
             # Floats o Enteros con NaNs
             else:
-                # Si es float64 o integer con NaNs, intentar bajar a float32
-                # Verificar si precisión ≤3 decimales para seguridad
+                # Si es float64 o integer con NaNs,  bajar a float32
+                # Verificar si precisión 3 decimales
                 non_nan_vals = df_opt[col].dropna()
                 if len(non_nan_vals) > 0:
                     max_diff = np.abs(non_nan_vals - np.round(non_nan_vals, 3)).max()
@@ -112,16 +108,12 @@ def download_station_data(
     """
     Descarga datos meteorológicos horarios de una estación desde Meteostat.
 
-    METODOLOGÍA (meteostat v2.1.4):
+    METODOLOGÍA (meteostat v2.1.4): (especifico versión porque con un meteostat v1 python 3.13 tiene problemas de API)
         1. Buscar estaciones cercanas con stations.nearby(Point)
         2. Filtrar por ID específico para validar que existe
         3. Obtener lat/lon/elevation REALES de la estación encontrada
         4. Descargar datos usando station_id directamente (hourly() con string)
         5. Procesar y agregar datos diarios
-
-    Nota: En v2.x, hourly(Point) usa interpolación geoespacial y puede devolver
-    vacío si no hay proveedores geo-location. Pasar el station_id como string
-    descarga directamente de la estación WMO/ICAO.
 
     Args:
         station_name: Nombre identificador (ej: "Madrid")
@@ -147,7 +139,7 @@ def download_station_data(
             return None
 
         # PASO 2: Filtrar por ID específico
-        # nearby() devuelve DF con 'id' como índice → reset para filtrar
+        # nearby() devuelve DF con 'id' como índice para filtrar
         nearby_stations = nearby_stations.reset_index()
         station_match = nearby_stations[nearby_stations["id"] == station_id]
 
@@ -291,9 +283,9 @@ def download_all_stations(config: Config) -> pd.DataFrame:
                 }
             )
 
-            print(f"  [OK] {station_name}: {len(df):,} registros")
+            print(f"{station_name}: {len(df):,} registros")
         else:
-            print(f"  [X] {station_name}: Sin datos")
+            print(f"{station_name}: Sin datos")
 
     if not all_data:
         raise ValueError("No se descargaron datos de ninguna estación")
@@ -302,7 +294,7 @@ def download_all_stations(config: Config) -> pd.DataFrame:
     combined_df = pd.concat(all_data, ignore_index=True)
     combined_df.sort_values(["station_id", "timestamp"], inplace=True)
 
-    # --- MÉTRICAS DE ALMACENAMIENTO (BIG DATA) ---
+    # MÉTRICAS DE ALMACENAMIENTO
     # 1. Tamaño original estimado en CSV (guardado temporal para medición real)
     temp_csv = config.RAW_DIR / "temp_comparison.csv"
     combined_df.to_csv(temp_csv, index=False)
@@ -331,7 +323,7 @@ def download_all_stations(config: Config) -> pd.DataFrame:
     )
     print(f"  [DISK] Tamaño CSV est.: {csv_size:.1f} MB")
     print(f"  [DISK] Tamaño Parquet:  {parquet_size:.1f} MB")
-    print(f"  [OK]   Ahorro en disco:  {storage_saving:.1f}%")
+    print(f"  Ahorro en disco:  {storage_saving:.1f}%")
     print("-" * 40)
 
     # Guardar metadata
@@ -339,8 +331,8 @@ def download_all_stations(config: Config) -> pd.DataFrame:
     metadata_path = config.RAW_DIR / "stations_metadata.json"
     metadata_df.to_json(metadata_path, orient="records", indent=2)
 
-    print(f"\n[OK] Dataset combinado: {len(combined_df):,} registros")
-    print(f"[OK] Estaciones: {len(metadata_list)}/{len(config.STATION_IDS)}")
-    print(f"[OK] Período: {config.START_DATE.date()} -> {config.END_DATE.date()}")
+    print(f"\n Dataset combinado: {len(combined_df):,} registros")
+    print(f" Estaciones: {len(metadata_list)}/{len(config.STATION_IDS)}")
+    print(f" Período: {config.START_DATE.date()} -> {config.END_DATE.date()}")
 
     return combined_df
