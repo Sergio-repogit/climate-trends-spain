@@ -23,6 +23,7 @@ data/*
 !data/.gitkeep
 *.csv
 *.parquet
+!data/results/unified_streamlit_data.parquet
 *.nc
 *.grib
 *.grib2

@@ -40,8 +40,12 @@ def main():
     import pyarrow.parquet as pq
 
     try:
-        enriched_path = "data/processed/all_stations_enriched.parquet"
-        if os.path.exists(enriched_path):
+        enriched_path = None
+        for path in ["data/processed/all_stations_enriched.parquet", "../data/processed/all_stations_enriched.parquet"]:
+            if os.path.exists(path):
+                enriched_path = path
+                break
+        if enriched_path:
             total_registros = pq.read_metadata(enriched_path).num_rows
             total_registros_str = f"{total_registros / 1e6:.1f}M"
         else:

@@ -2,6 +2,7 @@ from .analysis import (
     analyze_trends_acceleration,
     analyze_trends_comprehensive,
     calculate_derived_variables,
+    generate_unified_streamlit_data,
 )
 from .cleaning import process_all_stations_qc
 from .config import Config
@@ -84,6 +85,14 @@ def run_pipeline():
     print("-" * 70)
 
     acc_df = analyze_trends_acceleration(enriched_df, config)
+
+    # ========================================================================
+    # FASE 5.5: BASE DE DATOS UNIFICADA
+    # ========================================================================
+    print("\n" + "FASE 5.5: GENERANDO BASE DE DATOS UNIFICADA PARA STREAMLIT")
+    print("-" * 70)
+
+    generate_unified_streamlit_data(enriched_df, results_df, acc_df, config)
 
     # ========================================================================
     # FASE 6: VISUALIZACIONES

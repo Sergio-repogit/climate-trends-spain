@@ -556,3 +556,108 @@ def analyze_trends_acceleration(df: pd.DataFrame, config: Config) -> pd.DataFram
     print(f"\n Análisis de aceleración guardado en: {acc_path}")
 
     return results_df
+
+
+def generate_unified_streamlit_data(
+    df: pd.DataFrame, results_df: pd.DataFrame, acc_df: pd.DataFrame, config: Config
+) -> pd.DataFrame:
+    """
+    Genera un único archivo de base de datos optimizado para la aplicación Streamlit.
+    Combina:
+        1. Tendencias generales (comprehensive_trends)
+        2. Tendencias de aceleración (acceleration_trends)
+        3. Serie temporal anual promedio (annual_timeseries)
+        4. Frecuencia anual de extremos térmicos (yearly_extremes)
+        5. Tendencias estacionales detalladas (seasonal_trends)
+    """
+    print("\n" + "=" * 70)
+    print("GENERANDO BASE DE DATOS UNIFICADA PARA STREAMLIT")
+    print("=" * 70)
+
+    # 1. Copiar comprehensive_trends y agregar dataset_type
+    df_comp = results_df.copy()
+    df_comp["dataset_type"] = "comprehensive_trends"
+
+    # 2. Copiar acceleration_trends y agregar dataset_type
+    df_acc = acc_df.copy()
+    df_acc["dataset_type"] = "acceleration_trends"
+
+    # 3. Calcular serie anual promedio
+    print("  Precalculando serie anual promedio...")
+    df_ts_temp = df[["station_id", "timestamp", "temp"]].copy()
+    df_ts_temp["timestamp"] = pd.to_datetime(df_ts_temp["timestamp"])
+    df_ts_temp["year"] = df_ts_temp["timestamp"].dt.year
+    df_annual = df_ts_temp.groupby(["station_id", "year"])["temp"].mean().reset_index()
+    # Mapear a year-end timestamp como espera el streamlit original
+    df_annual["timestamp"] = pd.to_datetime(df_annual["year"].astype(str) + "-12-31")
+    df_annual["dataset_type"] = "annual_timeseries"
+
+    # 4. Calcular extremos anuales (is_tropical_night, is_extreme_heat, is_cold_extreme)
+    print("  Precalculando extremos anuales...")
+    df_ext = df[["station_id", "timestamp", "is_tropical_night", "is_extreme_heat", "is_cold_extreme"]].copy()
+    df_ext["date"] = pd.to_datetime(df_ext["timestamp"]).dt.date
+    df_ext["year"] = pd.to_datetime(df_ext["timestamp"]).dt.year
+    # Colapsar a nivel diario (alguna hora extrema en el día = día extremo)
+    daily_flags = (
+        df_ext.groupby(["station_id", "date", "year"])[
+            ["is_tropical_night", "is_extreme_heat", "is_cold_extreme"]
+        ]
+        .any()
+        .astype(int)
+        .reset_index()
+    )
+    # Sumar por año
+    df_yearly_extremes = (
+        daily_flags.groupby(["station_id", "year"])[
+            ["is_tropical_night", "is_extreme_heat", "is_cold_extreme"]
+        ]
+        .sum()
+        .reset_index()
+    )
+    df_yearly_extremes["dataset_type"] = "yearly_extremes"
+
+    # 5. Calcular tendencias estacionales
+    print("  Precalculando tendencias estacionales...")
+    df_season = df[["station_id", "timestamp", "temp", "tmax", "tmin", "season"]].copy()
+    df_season["year"] = pd.to_datetime(df_season["timestamp"]).dt.year
+    seasonal_agg = (
+        df_season.groupby(["station_id", "year", "season"])
+        .agg({"temp": "mean", "tmax": "mean", "tmin": "mean"})
+        .reset_index()
+    )
+
+    seasonal_results = []
+    stations = seasonal_agg["station_id"].unique()
+    seasons = ["Invierno", "Primavera", "Verano", "Otoño"]
+    vars_to_analyze = {"temp": "Media", "tmax": "Máxima", "tmin": "Mínima"}
+
+    for station in stations:
+        station_data = seasonal_agg[seasonal_agg["station_id"] == station]
+        for season in seasons:
+            season_data = station_data[station_data["season"] == season].sort_values("year")
+            if len(season_data) >= 5:
+                for var_code, var_name in vars_to_analyze.items():
+                    res = mk.original_test(season_data[var_code])
+                    seasonal_results.append(
+                        {
+                            "station_id": station,
+                            "season": season,
+                            "variable": var_name,
+                            "slope": res.slope * 10,
+                            "p_value": res.p,
+                        }
+                    )
+    df_seasonal_trends = pd.DataFrame(seasonal_results)
+    df_seasonal_trends["dataset_type"] = "seasonal_trends"
+
+    # Concatenar todos
+    unified_df = pd.concat([df_comp, df_acc, df_annual, df_yearly_extremes, df_seasonal_trends], ignore_index=True)
+
+    # Guardar en data/results/unified_streamlit_data.parquet
+    config.RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    unified_path = config.RESULTS_DIR / "unified_streamlit_data.parquet"
+    unified_df.to_parquet(unified_path, index=False)
+    print(f"\n Base de datos unificada guardada en: {unified_path}")
+
+    return unified_df
+

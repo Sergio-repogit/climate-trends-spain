@@ -10,7 +10,7 @@ if str(parent_dir) not in sys.path:
     sys.path.append(str(parent_dir))
 
 from components.filters import render_sidebar_filters  # noqa: E402
-from utils.data_loader import load_comprehensive_trends  # noqa: E402
+from utils.data_loader import load_comprehensive_trends, load_yearly_extremes  # noqa: E402
 from utils.styling import load_css  # noqa: E402
 
 st.set_page_config(page_title="Extremos Térmicos", layout="wide")
@@ -19,46 +19,7 @@ load_css()
 
 @st.cache_data
 def get_yearly_extremes():
-    import pyarrow.dataset as ds
-
-    dataset = ds.dataset(
-        "data/processed/all_stations_enriched.parquet", format="parquet"
-    )
-    table = dataset.to_table(
-        columns=[
-            "station_id",
-            "timestamp",
-            "is_tropical_night",
-            "is_extreme_heat",
-            "is_cold_extreme",
-        ]
-    )
-    df = table.to_pandas()
-
-    # Convertir timestamp a fecha (sin hora) para agrupar por días naturales
-    df["date"] = pd.to_datetime(df["timestamp"]).dt.date
-    df["year"] = pd.to_datetime(df["timestamp"]).dt.year
-
-    # IMPORTANTE: Colapsamos las horas en días.
-    # Si en un día de 24h hubo al menos una hora marcada como extremo, el día cuenta como 1.
-    daily_flags = (
-        df.groupby(["station_id", "date", "year"])[
-            ["is_tropical_night", "is_extreme_heat", "is_cold_extreme"]
-        ]
-        .any()
-        .astype(int)
-        .reset_index()
-    )
-
-    # Ahora sumamos los días por año
-    yearly_counts = (
-        daily_flags.groupby(["station_id", "year"])[
-            ["is_tropical_night", "is_extreme_heat", "is_cold_extreme"]
-        ]
-        .sum()
-        .reset_index()
-    )
-    return yearly_counts
+    return load_yearly_extremes()
 
 
 def app():

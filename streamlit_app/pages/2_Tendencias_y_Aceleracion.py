@@ -10,7 +10,11 @@ parent_dir = Path(__file__).parent.parent
 if str(parent_dir) not in sys.path:
     sys.path.append(str(parent_dir))
 
-from utils.data_loader import load_comprehensive_trends  # noqa: E402
+from utils.data_loader import (  # noqa: E402
+    load_acceleration_trends,
+    load_annual_timeseries,
+    load_comprehensive_trends,
+)
 from utils.styling import load_css  # noqa: E402
 
 st.set_page_config(page_title="Tendencias y Aceleración", layout="wide")
@@ -36,19 +40,10 @@ def app():
 
     @st.cache_data
     def check_station_data_volume(station_id):
-        """Comprueba automáticamente si una estación tiene suficientes datos históricos leyendo el Parquet original"""
+        """Comprueba automáticamente si una estación tiene suficientes datos históricos en la serie anual"""
         try:
-            import pyarrow.dataset as ds
-
-            dataset = ds.dataset(
-                "data/processed/all_stations_enriched.parquet", format="parquet"
-            )
-            scanner = dataset.scanner(
-                columns=["station_id"], filter=(ds.field("station_id") == station_id)
-            )
-            batches = scanner.to_batches()
-            total_rows = sum(len(b) for b in batches)
-            return total_rows > 87600  # Más de 10 años
+            df_ts = load_annual_timeseries(station_id)
+            return len(df_ts) > 10
         except Exception:
             return True
 
@@ -59,9 +54,9 @@ def app():
             "Datos insuficientes para calcular aceleración por lustros en esta estación (periodo histórico corto)."
         )
     else:
-        # Intentar cargar datos reales de aceleración generados por el pipeline
+        # Intentar cargar datos reales de aceleración desde la base de datos unificada
         try:
-            accel_df = pd.read_parquet("data/results/acceleration_trends.parquet")
+            accel_df = load_acceleration_trends()
             station_accel = accel_df[accel_df["station_id"] == selected_station]
 
             if not station_accel.empty:
@@ -72,7 +67,7 @@ def app():
                     }
                 )
                 st.success(
-                    "Usando datos analíticos reales del archivo `acceleration_trends.parquet`."
+                    "Usando datos analíticos reales de la base de datos unificada."
                 )
             else:
                 # Datos simulados si el pipeline aún no ha procesado esta estación real
@@ -175,20 +170,7 @@ def app():
     @st.cache_data
     def load_station_timeseries(station_id):
         try:
-            import pyarrow.dataset as ds
-
-            dataset = ds.dataset(
-                "data/processed/all_stations_enriched.parquet", format="parquet"
-            )
-            table = dataset.to_table(
-                filter=(ds.field("station_id") == station_id),
-                columns=["timestamp", "temp"],
-            )
-            df_ts = table.to_pandas()
-            # Resample a anual para suavizar el gráfico
-            df_ts["timestamp"] = pd.to_datetime(df_ts["timestamp"])
-            # Usamos 'YE' para el resample anual (Year End)
-            return df_ts.resample("YE", on="timestamp").mean().reset_index()
+            return load_annual_timeseries(station_id)
         except Exception:
             return pd.DataFrame()
 

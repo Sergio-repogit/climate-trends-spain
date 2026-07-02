@@ -11,7 +11,7 @@ parent_dir = Path(__file__).parent.parent
 if str(parent_dir) not in sys.path:
     sys.path.append(str(parent_dir))
 
-from utils.data_loader import load_comprehensive_trends  # noqa: E402
+from utils.data_loader import load_comprehensive_trends, load_seasonal_analysis  # noqa: E402
 from utils.styling import load_css  # noqa: E402
 
 st.set_page_config(page_title="Análisis Estacional", layout="wide")
@@ -20,54 +20,8 @@ load_css()
 
 @st.cache_data
 def calculate_seasonal_analysis():
-    """Calcula tendencias por estación del año para todas las estaciones"""
-    try:
-        df = pd.read_parquet(
-            "data/processed/all_stations_enriched.parquet",
-            columns=["station_id", "timestamp", "temp", "tmax", "tmin", "season"],
-        )
-    except Exception:
-        return pd.DataFrame()
-
-    df["year"] = pd.to_datetime(df["timestamp"]).dt.year
-
-    seasonal_agg = (
-        df.groupby(["station_id", "year", "season"])
-        .agg({"temp": "mean", "tmax": "mean", "tmin": "mean"})
-        .reset_index()
-    )
-
-    results = []
-    stations = seasonal_agg["station_id"].unique()
-    seasons = ["Invierno", "Primavera", "Verano", "Otoño"]
-    vars_to_analyze = {"temp": "Media", "tmax": "Máxima", "tmin": "Mínima"}
-
-    progress_text = "Calculando distribuciones estacionales..."
-    my_bar = st.progress(0, text=progress_text)
-
-    total = len(stations)
-    for i, station in enumerate(stations):
-        station_data = seasonal_agg[seasonal_agg["station_id"] == station]
-        for season in seasons:
-            season_data = station_data[station_data["season"] == season].sort_values(
-                "year"
-            )
-            if len(season_data) >= 5:
-                for var_code, var_name in vars_to_analyze.items():
-                    res = mk.original_test(season_data[var_code])
-                    results.append(
-                        {
-                            "station_id": station,
-                            "season": season,
-                            "variable": var_name,
-                            "slope": res.slope * 10,
-                            "p_value": res.p,
-                        }
-                    )
-        my_bar.progress((i + 1) / total)
-
-    my_bar.empty()
-    return pd.DataFrame(results)
+    """Retorna tendencias por estación del año cargadas desde la base de datos unificada"""
+    return load_seasonal_analysis()
 
 
 def app():
