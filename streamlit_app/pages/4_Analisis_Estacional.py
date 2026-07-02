@@ -4,14 +4,16 @@ from pathlib import Path
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import pymannkendall as mk
 import streamlit as st
 
 parent_dir = Path(__file__).parent.parent
 if str(parent_dir) not in sys.path:
     sys.path.append(str(parent_dir))
 
-from utils.data_loader import load_comprehensive_trends, load_seasonal_analysis  # noqa: E402
+from utils.data_loader import (  # noqa: E402
+    load_comprehensive_trends,
+    load_seasonal_analysis,
+)
 from utils.styling import load_css  # noqa: E402
 
 st.set_page_config(page_title="Análisis Estacional", layout="wide")

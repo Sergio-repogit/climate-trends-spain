@@ -41,7 +41,10 @@ def main():
 
     try:
         enriched_path = None
-        for path in ["data/processed/all_stations_enriched.parquet", "../data/processed/all_stations_enriched.parquet"]:
+        for path in [
+            "data/processed/all_stations_enriched.parquet",
+            "../data/processed/all_stations_enriched.parquet",
+        ]:
             if os.path.exists(path):
                 enriched_path = path
                 break

@@ -594,7 +594,15 @@ def generate_unified_streamlit_data(
 
     # 4. Calcular extremos anuales (is_tropical_night, is_extreme_heat, is_cold_extreme)
     print("  Precalculando extremos anuales...")
-    df_ext = df[["station_id", "timestamp", "is_tropical_night", "is_extreme_heat", "is_cold_extreme"]].copy()
+    df_ext = df[
+        [
+            "station_id",
+            "timestamp",
+            "is_tropical_night",
+            "is_extreme_heat",
+            "is_cold_extreme",
+        ]
+    ].copy()
     df_ext["date"] = pd.to_datetime(df_ext["timestamp"]).dt.date
     df_ext["year"] = pd.to_datetime(df_ext["timestamp"]).dt.year
     # Colapsar a nivel diario (alguna hora extrema en el día = día extremo)
@@ -634,7 +642,9 @@ def generate_unified_streamlit_data(
     for station in stations:
         station_data = seasonal_agg[seasonal_agg["station_id"] == station]
         for season in seasons:
-            season_data = station_data[station_data["season"] == season].sort_values("year")
+            season_data = station_data[station_data["season"] == season].sort_values(
+                "year"
+            )
             if len(season_data) >= 5:
                 for var_code, var_name in vars_to_analyze.items():
                     res = mk.original_test(season_data[var_code])
@@ -651,7 +661,10 @@ def generate_unified_streamlit_data(
     df_seasonal_trends["dataset_type"] = "seasonal_trends"
 
     # Concatenar todos
-    unified_df = pd.concat([df_comp, df_acc, df_annual, df_yearly_extremes, df_seasonal_trends], ignore_index=True)
+    unified_df = pd.concat(
+        [df_comp, df_acc, df_annual, df_yearly_extremes, df_seasonal_trends],
+        ignore_index=True,
+    )
 
     # Guardar en data/results/unified_streamlit_data.parquet
     config.RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -660,4 +673,3 @@ def generate_unified_streamlit_data(
     print(f"\n Base de datos unificada guardada en: {unified_path}")
 
     return unified_df
-

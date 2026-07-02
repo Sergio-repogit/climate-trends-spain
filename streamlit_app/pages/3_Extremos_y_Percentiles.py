@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-import pandas as pd
 import plotly.express as px
 import streamlit as st
 
@@ -10,7 +9,10 @@ if str(parent_dir) not in sys.path:
     sys.path.append(str(parent_dir))
 
 from components.filters import render_sidebar_filters  # noqa: E402
-from utils.data_loader import load_comprehensive_trends, load_yearly_extremes  # noqa: E402
+from utils.data_loader import (  # noqa: E402
+    load_comprehensive_trends,
+    load_yearly_extremes,
+)
 from utils.styling import load_css  # noqa: E402
 
 st.set_page_config(page_title="Extremos Térmicos", layout="wide")
